@@ -1,0 +1,40 @@
+name: Build and Release EXE
+
+on:
+  push:
+    branches: [ main, master ]  # Triggers on pushes to these branches
+  workflow_dispatch:            # Allows you to trigger it manually
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        cache: 'pip' # Speeds up future builds
+
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyinstaller
+        # If your project has a requirements file, uncomment the line below:
+        # pip install -r requirements.txt
+
+    - name: Build EXE with PyInstaller
+      run: |
+        pyinstaller --onefile main.py
+      # Note: Change "main.py" to your exact python script name.
+      # Add "-w" after --onefile if you want to hide the command prompt window.
+
+    - name: Upload EXE as Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: Windows-Executable
+        path: dist/*.exe
+
